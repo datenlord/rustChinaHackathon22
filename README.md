@@ -42,7 +42,8 @@ https://meeting.tencent.com/dm/y3paDmGk4U6B
 - 客户端将并发地发送请求，但并不会发送冲突的请求。
 - 无冲突的请求应当被并发执行，以提高生产量。
 
-`</// Operations of Index
+```Rust
+/// Operations of Index
 pub(crate) trait IndexOperate<K: Ord, V> {
     /// Get a range of keys in [key, range_end]
     fn get(&self, key: &K, range_end: &K) -> Vec<&V>;
@@ -50,7 +51,8 @@ pub(crate) trait IndexOperate<K: Ord, V> {
     fn delete(&self, key: &K, range_end: &K) -> Vec<V>;
     /// insert of update a key     
     fn insert_or_update(&self, key: K, value: V) -> Option<V>;
-}>` 
+}
+```
 
 你的实现应遵从上述 Trait 并满足上述要求。我们将使用一定基准测试来进行评估，并根据其结果评分。在基准测试中，我们将发送大量并发请求，因此你也可以创建自己的性能测试来帮助进行优化。
 ## 奖金安排
