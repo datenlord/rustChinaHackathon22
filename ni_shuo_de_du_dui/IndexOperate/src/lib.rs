@@ -16,7 +16,7 @@ struct Basedata {
     //pool: ThreadPool,
 }
 impl Basedata {
-    fn new() -> Basedata {
+    pub fn new() -> Basedata {
         Basedata {
             tree: DashMap::new(),
             //pool: ThreadPool::new(10),
@@ -37,7 +37,7 @@ impl Basedata {
         }
         //None
     }
-    fn contains<K: Ord + Copy, V: Copy>(&self, root_name: &String) -> Option<&mut BTreeMap<K, V>> {
+    fn contains<K: Ord, V>(&self, root_name: &String) -> Option<&mut BTreeMap<K, V>> {
         //let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
         if self.tree.contains_key(root_name) {
             let root_addr = *self.tree.get(root_name).unwrap();
@@ -48,47 +48,57 @@ impl Basedata {
         }
         None
     }
-    fn insert<K: Ord + Copy, V: Copy>(&self, tree: &mut BTreeMap<K, V>) {
-        let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
-        let root_temp = self.contains::<K, V>(&root_name);
-        if root_temp.is_some() {
-            let root = root_temp.unwrap();
-            for (&key, val) in tree {
-                let add_key = key.clone();
-                let add_val = val.clone();
-                root.insert(add_key, add_val);
-            }
-        } else {
-            self.tree.insert(root_name, get_usize(tree));
-        }
-    }
-    fn get<K: Ord + Copy, V: Copy>(&self, key: &K, range_end: &K) -> Vec<&V> {
+    // fn insert<K: Ord, V>(&self, tree: &mut BTreeMap<K, V>) {
+    //     let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
+    //     let root_temp = self.contains::<K, V>(&root_name);
+    //     if root_temp.is_some() {
+    //         let root = root_temp.unwrap();
+    //         for (&key, val) in tree {
+    //             root.insert(&add_key, add_val);
+    //         }
+    //     } else {
+    //         self.tree.insert(root_name, get_usize(tree));
+    //     }
+    // }
+    // fn thread_task(&self) {
+    //     //let rec = self.listener.1.recv().unwrap();
+    // }
+}
+trait IndexOperate<K: Ord, V: Copy> {
+    fn get(&self, key: &K, range_end: &K) -> Vec<&V>;
+    fn delete(&self, key: &K, range_end: &K) -> Vec<V>;
+    fn insert_or_update(&self, key: K, value: V) -> Option<V>;
+}
+impl<K: Ord, V: Copy> IndexOperate<K, V> for Basedata {
+    fn get(&self, key: &K, range_end: &K) -> Vec<&V> {
         let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
         let root_temp = self.contains::<K, V>(&root_name);
         if root_temp.is_some() {
             let root = root_temp.unwrap();
             let mut ret_vec = Vec::new();
-            for (_, V) in root.range(key..range_end) {
-                ret_vec.push(V);
+            for (_, v) in root.range(key..range_end) {
+                ret_vec.push(v);
             }
         }
         vec![]
     }
-    fn delete<K: Ord + Copy, V: Copy>(&self, key: &K, range_end: &K) -> Vec<V> {
+
+    fn delete(&self, key: &K, range_end: &K) -> Vec<V> {
         let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
         let root_temp = self.contains::<K, V>(&root_name);
         if root_temp.is_some() {
             let root = root_temp.unwrap();
             let mut ret_vec = Vec::new();
-            for (_, &val) in root.range(key..range_end) {
-                ret_vec.push(val);
+            for (_, val) in root.range(key..range_end) {
+                ret_vec.push(*val);
             }
-            root.retain(|&k, _| k < *key && k > *range_end);
+            root.retain(|k, _| *k < *key && *k > *range_end);
             return ret_vec;
         }
         vec![]
     }
-    fn insert_or_update<K: Ord + Copy, V: Copy>(&self, key: K, value: V) -> Option<V> {
+
+    fn insert_or_update(&self, key: K, value: V) -> Option<V> {
         let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
         let root_temp = self.contains::<K, V>(&root_name);
         if root_temp.is_some() {
@@ -103,26 +113,5 @@ impl Basedata {
             }
         }
         None
-    }
-    // fn thread_task(&self) {
-    //     //let rec = self.listener.1.recv().unwrap();
-    // }
-}
-trait IndexOperate<K: Ord, V> {
-    fn get(&self, key: &K, range_end: &K) -> Vec<&V>;
-    fn delete(&self, key: &K, range_end: &K) -> Vec<V>;
-    fn insert_or_update(&self, key: K, value: V) -> Option<V>;
-}
-impl<K: Ord, V> IndexOperate<K, V> for Basedata {
-    fn get(&self, key: &K, range_end: &K) -> Vec<&V> {
-        self.get(key, range_end)
-    }
-
-    fn delete(&self, key: &K, range_end: &K) -> Vec<V> {
-        self.delete(key, range_end)
-    }
-
-    fn insert_or_update(&self, key: K, value: V) -> Option<V> {
-        self.insert_or_update(key, value)
     }
 }
