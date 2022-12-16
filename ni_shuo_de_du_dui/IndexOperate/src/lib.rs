@@ -68,7 +68,7 @@ trait IndexOperate<K: Ord, V: Copy> {
     fn delete(&self, key: &K, range_end: &K) -> Vec<V>;
     fn insert_or_update(&self, key: K, value: V) -> Option<V>;
 }
-impl<'a, K: Ord + 'static + Copy, V: Copy> IndexOperate<K, V> for Basedata {
+impl<'a, K: Ord + 'static, V: Copy> IndexOperate<K, V> for Basedata {
     fn get(&self, key: &K, range_end: &K) -> Vec<&V> {
         let root_name = format!("{},{}", type_name::<Option<K>>(), type_name::<Option<V>>());
         let root_temp = self.contains::<K, V>(&root_name);
