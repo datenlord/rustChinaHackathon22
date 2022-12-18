@@ -1,0 +1,20 @@
+[package]
+name = "guduyaogun"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bench]]
+name = "main"
+harness = false
+
+[dev-dependencies]
+criterion = {version = "0.4"}
+
+[dependencies]
+rayon = "1.6"
+futures = "0.3"
+crossbeam-skiplist = "0.1"
+num_cpus = "1"
+rand = "0.8"
