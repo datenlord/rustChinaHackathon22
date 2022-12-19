@@ -1,0 +1,3 @@
+[submodule "daydayrust/rust-faster/faster-sys/faster"]
+	path = daydayrust/rust-faster/faster-sys/faster
+	url = https://github.com/cgair/FASTER.git

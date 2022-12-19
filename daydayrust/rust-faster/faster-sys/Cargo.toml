@@ -1,0 +1,16 @@
+[package]
+name = "faster-sys"
+version = "0.1.0"
+edition = "2021"
+
+build = "build.rs"
+links = "faster"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+bindgen = "0.63.0"
+cmake   = "0.1"
