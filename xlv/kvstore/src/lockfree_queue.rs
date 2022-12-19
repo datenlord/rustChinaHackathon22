@@ -1,4 +1,3 @@
-
 use std::{
     io::Write,
     sync::atomic::{AtomicUsize, Ordering},
@@ -142,7 +141,7 @@ impl<T> Drop for Queue<T> {
 
 impl<T> Queue<T> {
     // 用来打印元素
-    pub fn walk(&self) {
+    pub fn print_queue(&self) {
         let _ = std::io::stdout().flush();
         let guard = epoch::pin();
         let mut start = self.head.load(Ordering::Acquire, &guard);
@@ -160,9 +159,10 @@ impl<T> Queue<T> {
     }
 }
 
-
 #[cfg(test)]
 mod lockfree_queue_test {
+    use crate::entry::Entry;
+    use crate::lockfree_queue::Queue;
     use std::{
         sync::{
             atomic::{AtomicI32, Ordering},
@@ -170,15 +170,12 @@ mod lockfree_queue_test {
         },
         thread,
     };
-    use crate::entry::Entry;
-    use crate::lockfree_queue::{ Queue};
-
 
     #[test]
     fn test_single() {
         let q = Queue::new();
         let entry = Entry::new(1, 2);
         q.push(entry);
-        q.walk();
+        q.print_queue();
     }
 }

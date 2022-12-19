@@ -1,5 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
 use std::fmt::Display;
+use std::{cell::RefCell, rc::Rc};
 
 type RefNode<K, V> = Rc<RefCell<Node<K, V>>>;
 
@@ -169,7 +169,7 @@ impl<K: Ord + Clone + Copy + Display, V: Clone + Copy> SkipList<K, V> {
             self.random_level()
         } else {
             self.max_level
-        }; 
+        };
 
         let node = Node::new(key, value);
         let mut current_level = self.max_level + 1;
@@ -181,7 +181,7 @@ impl<K: Ord + Clone + Copy + Display, V: Clone + Copy> SkipList<K, V> {
                 let mut up_node: Option<RefNode<K, V>> = None;
                 loop {
                     let mut tmp = current.clone();
-                    let tmp_key = {tmp.borrow().key};
+                    let tmp_key = { tmp.borrow().key };
                     if tmp_key == key {
                         loop {
                             let new_tmp = tmp.clone();
@@ -388,13 +388,67 @@ impl<K: Ord + Clone + Copy + Display, V: Clone + Copy> SkipList<K, V> {
                         }
                     }
                 }
-            },
-            None => {},
+            }
+            None => {}
         }
     }
 
-    pub fn get_range(&self, key: K, value: V) -> Option<Vec<&i32>> {
-        todo!()
+    pub fn get_range(&self, key: &K, range_end: &K) -> Vec<V> {
+        let mut result = Vec::new();
+        let h = { self.head.borrow().clone() };
+        match h {
+            Some(ref head) => {
+                let mut current = head.clone();
+                loop {
+                    let mut tmp = current.clone();
+                    if &tmp.borrow().key == key {
+                        loop {
+                            let new_tmp = tmp.clone();
+                            if let Some(d) = &new_tmp.borrow().down {
+                                tmp = Rc::clone(d);
+                            } else {
+                                break;
+                            };
+                        }
+                        loop {
+                            result.push(tmp.borrow().value);
+                            let new_tmp = tmp.clone();
+                            if let Some(next) = &new_tmp.borrow().next {
+                                if &next.borrow().key <= range_end {
+                                    tmp = Rc::clone(next);
+                                } else {
+                                    break;
+                                }
+                            } else {
+                                break;
+                            };
+                        }
+                        return result;
+                    }
+                    if &tmp.borrow().key < key {
+                        if let Some(next_node) = &tmp.borrow().next {
+                            if &next_node.borrow().key <= key {
+                                current = Rc::clone(next_node);
+                            } else {
+                                if let Some(down_node) = &tmp.borrow().down {
+                                    current = Rc::clone(down_node);
+                                } else {
+                                    return result;
+                                }
+                            }
+                        } else {
+                            if let Some(down_node) = &tmp.borrow().down {
+                                current = Rc::clone(down_node);
+                            } else {
+                                return result;
+                            }
+                        }
+                    }
+                }
+            }
+            None => {}
+        }
+        return result;
     }
 }
 
@@ -406,16 +460,23 @@ mod tests {
     #[test]
     fn test() {
         let skiplist = SkipList::new(2);
-        skiplist.insert(1, 1);
-        skiplist.insert(3, 3);
-        skiplist.insert(2, 2);
-        skiplist.insert(4, 4);
+        skiplist.insert_or_update(1, 1);
+        skiplist.insert_or_update(3, 3);
+        skiplist.insert_or_update(2, 2);
+        skiplist.insert_or_update(4, 4);
         // skiplist.print_level_path();
         assert_eq!(Some(2), skiplist.find(2));
         assert_eq!(Some(3), skiplist.find(3));
         skiplist.insert_or_update(2, 5);
         assert_eq!(Some(5), skiplist.find(2));
-        skiplist.delete(2);
-
+        skiplist.insert_or_update(5, 5);
+        assert_eq!(Some(5), skiplist.find(5));
+        skiplist.insert_or_update(8, 8);
+        assert_eq!(Some(8), skiplist.find(8));
+        skiplist.insert_or_update(7, 7);
+        assert_eq!(Some(7), skiplist.find(7));
+        skiplist.insert_or_update(6, 6);
+        assert_eq!(Some(6), skiplist.find(6));
+        assert_eq!(vec![1, 5, 3, 4, 5, 6, 7], skiplist.get_range(&1, &7)); 
     }
 }

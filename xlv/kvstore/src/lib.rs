@@ -1,11 +1,15 @@
-mod skip;
-mod lockfree_queue;
 mod entry;
-
+mod lockfree_queue;
+mod skip;
+mod atomic;
 
 use std::{collections::BTreeMap, sync::Mutex};
+use std::collections::LinkedList;
+use std::iter::Skip;
 use crate::entry::Entry;
 use crate::lockfree_queue::Queue;
+use crate::skip::SkipList;
+
 
 /// Operations of Index
 pub(crate) trait IndexOperate<K: Ord, V> {
@@ -21,17 +25,18 @@ pub struct KVStore<K: Ord, V> {
     map: Mutex<BTreeMap<K, V>>,
 }
 
-pub struct QEntry<T> {
-    queue: Queue<T>,
+pub struct KVQueue<K: Ord, V> {
+    queue: Queue<Entry<K, V>>,
 }
 
-impl <T> QEntry<T> {
+impl <K: Ord, V> KVQueue<K, V> {
     pub fn new() -> Self {
         Self {
-            queue: Queue::new()
+            queue: Queue::new(),
         }
     }
 }
+
 
 impl<K: Ord, V> KVStore<K, V> {
     pub fn new() -> Self {
@@ -41,8 +46,7 @@ impl<K: Ord, V> KVStore<K, V> {
     }
 }
 
-impl<T, K: Ord, V> IndexOperate<K, V> for QEntry<T> {
-
+impl<K: Ord, V> IndexOperate<K, V> for KVQueue<K, V> {
     fn get(&self, key: &K, range_end: &K) -> Vec<&V> {
         todo!()
     }
@@ -54,6 +58,12 @@ impl<T, K: Ord, V> IndexOperate<K, V> for QEntry<T> {
     fn insert_or_update(&self, key: K, value: V) -> Option<V> {
         let entry = Entry::new(key, value);
         self.queue.push(entry);
+        // thread::spawn( move || {
+        // let entry = self.queue.pop().unwrap();
+        // self.list.insert_or_update(entry.key, entry.value);
+        //
+        // });
+
         None
     }
 }
