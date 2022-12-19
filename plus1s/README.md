@@ -23,3 +23,32 @@ Since there is some overhead in the wrapping layer, someone should beat this wor
 [crossbeam-skiplist]: https://github.com/crossbeam-rs/crossbeam/tree/master/crossbeam-skiplist
 [ManuallyDrop]: https://doc.rust-lang.org/stable/std/mem/struct.ManuallyDrop.html
 
+## benchmark
+
+multithread read write xline
+                        time:   [53.497 ms 55.282 ms 57.193 ms]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+
+multithread read write crossbeam
+                        time:   [36.894 ms 37.705 ms 38.582 ms]
+Found 8 outliers among 100 measurements (8.00%)
+  7 (7.00%) high mild
+  1 (1.00%) high severe
+
+     Running benches/read_only.rs (target/release/deps/read_only-c7ee510a05bad528)
+read only xline         time:   [6.9177 ms 6.9497 ms 6.9824 ms]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+
+read only crossbeam     time:   [6.7929 ms 6.8322 ms 6.8711 ms]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+
+     Running benches/read_write.rs (target/release/deps/read_write-60379546257eb8c2)
+read write xline        time:   [53.724 ms 54.904 ms 56.136 ms]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+
+read write crossbeam    time:   [40.920 ms 41.554 ms 42.201 ms]
+
