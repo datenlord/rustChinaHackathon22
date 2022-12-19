@@ -252,10 +252,9 @@ impl<K: Ord + Clone + Copy + Display, V: Clone + Copy> SkipList<K, V> {
                                 Some(ref up) => {
                                     up.borrow_mut().down = Some(new_node.clone());
                                 }
-                                None => {
-                                    up_node = Some(new_node.clone());
-                                }
+                                None => {}
                             }
+                            up_node = Some(new_node.clone());
                             if let Some(down_node) = &tmp.borrow().down {
                                 current = Rc::clone(down_node);
                                 current_level -= 1;
@@ -459,7 +458,7 @@ mod tests {
 
     #[test]
     fn test() {
-        let skiplist = SkipList::new(2);
+        let skiplist = SkipList::new(3);
         skiplist.insert_or_update(1, 1);
         skiplist.insert_or_update(3, 3);
         skiplist.insert_or_update(2, 2);
@@ -477,6 +476,6 @@ mod tests {
         assert_eq!(Some(7), skiplist.find(7));
         skiplist.insert_or_update(6, 6);
         assert_eq!(Some(6), skiplist.find(6));
-        assert_eq!(vec![1, 5, 3, 4, 5, 6, 7], skiplist.get_range(&1, &7)); 
+        assert_eq!(vec![1, 5, 3, 4, 5, 6, 7], skiplist.get_range(&1, &7));
     }
 }
